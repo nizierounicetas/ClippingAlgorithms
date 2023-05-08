@@ -1,9 +1,7 @@
-import time
 import tkinter as tk
 import matplotlib
 from tkinter import messagebox, filedialog
 
-import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -36,9 +34,6 @@ class ClippingApp:
 
         self.options_frame = tk.Frame(self.master)
         self.options_frame.pack(side=tk.RIGHT, padx=10)
-
-        self.scale_var = tk.IntVar(self.options_frame)
-        self.scale_var.set(100)
 
         self.alg_var = tk.StringVar(value="l")
 
@@ -114,28 +109,43 @@ class ClippingApp:
             self.process_sutherland_hodgman()
 
     def process_sutherland_hodgman(self):
+        self.ask_file()
+        if self.filepath == None or self.filepath == '':
+            messagebox.showerror(message='file is not chosen', title='Error')
+            return
 
+        self.clear_canvas()
+        polygon, clip_polygon = self.parse_file2()
 
-        try:
-            self.ask_file()
-            if self.filepath == None or self.filepath == '':
-                messagebox.showerror(message='file is not chosen', title='Error')
-                return
+        new_polygon = algorithms.sutherland_hodgman(polygon, clip_polygon)
 
-            self.clear_canvas()
-            polygon, clip_polygon = self.parse_file2()
+        self.draw_polygon(polygon, 'blue', 2)
+        self.draw_polygon(clip_polygon, 'black', 3)
+        if new_polygon != None:
+            self.draw_polygon(new_polygon, 'red', 4)
 
-            new_polygon = algorithms.sutherland_hodgman(polygon, clip_polygon)
-
-            self.draw_polygon(polygon, 'blue', 2)
-            self.draw_polygon(clip_polygon, 'black', 3)
-            if new_polygon != None:
-                self.draw_polygon(new_polygon, 'red', 4)
-
-            plt.title('Sutherland Hodgman')
-            self.canvas.draw()
-        except:
-            messagebox.showerror(message='file is wrong(2)', title='Error')
+        plt.title('Sutherland Hodgman')
+        self.canvas.draw()
+        # try:
+        #     self.ask_file()
+        #     if self.filepath == None or self.filepath == '':
+        #         messagebox.showerror(message='file is not chosen', title='Error')
+        #         return
+        #
+        #     self.clear_canvas()
+        #     polygon, clip_polygon = self.parse_file2()
+        #
+        #     new_polygon = algorithms.sutherland_hodgman(polygon, clip_polygon)
+        #
+        #     self.draw_polygon(polygon, 'blue', 2)
+        #     self.draw_polygon(clip_polygon, 'black', 3)
+        #     if new_polygon != None:
+        #         self.draw_polygon(new_polygon, 'red', 4)
+        #
+        #     plt.title('Sutherland Hodgman')
+        #     self.canvas.draw()
+        # except:
+        #     messagebox.showerror(message='file is wrong(2)', title='Error')
 
     def process_liang_barsky(self):
         try:
@@ -180,9 +190,8 @@ class ClippingApp:
 
 
     def draw_polygon(self, polygon, color, linewidth):
-        for i in range(len(polygon) - 1):
-            plt.plot([polygon[i][0], polygon[i+1][0]], [polygon[i][1], polygon[i+1][1]], color=color, linewidth=linewidth)
-        plt.plot([polygon[-1][0], polygon[0][0]], [polygon[-1][1], polygon[0][1]], color=color, linewidth=linewidth)
+        for i in range(len(polygon)):
+            plt.plot([polygon[i-1][0], polygon[i][0]], [polygon[i-1][1], polygon[i][1]], color=color, linewidth=linewidth)
 
 
 
